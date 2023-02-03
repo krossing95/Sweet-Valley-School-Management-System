@@ -1,0 +1,57 @@
+USER OR ACCOUNT (Administrators, Teachers and Parents)
+
+(0)[
+    id, firstname, middlename, lastname, email, phone, usertype, verified, timestamp
+]
+
+STUDENT
+
+(1)[
+    id, parent_id(0), firstname, middlename, lastname, gender, dob, home_lang, 
+    telephone, address, passport_photo, commencement_date, last_sch_attended, timestamp
+]
+
+PARENT_INFORMATION
+
+(2)[
+    id, student_id(1), 
+    father_info: JSON.stringify({
+        firstname, middlename, lastname, telephone, home_address, 
+        postal_address, occupation, employer, work_address
+    }), 
+    mother_info: JSON.stringify({
+        firstname, middlename, lastname, telephone, home_address, 
+        postal_address, occupation, employer, work_address
+    }), timestamp
+]
+
+EMERGENCY CONTACTS
+
+(3)[
+    id, student_id(1), contacts: JSON.stringify([{
+        contact_id, firstname, lastname, telephone, home_address, postal_address, occupation, 
+        employer, work_address, relationship
+    }]), timestamp
+]
+
+DELEGATES (People to pick up student)
+
+(4)[
+    id, student_id(1),
+    persons: JSON.stringify([{
+        person_id, firstname, lastname, telephone, home_address, postal_address, occupation, 
+        employer, work_address
+    }]), timestamp
+]
+
+STUDENT MEDICAL INFORMATION
+
+(5)[
+    id, student_id(1), pediatrician, telephone, 
+    student_contagious_diseases: JSON.stringify([{disease_id, disease_name}]), 
+    immunization: JSON.stringify([{disease_id, disease_name, immunization_date}]),
+    allergies: JSON.stringify([{allergy_id, allergy_description}]),
+    surgery: JSON.stringify([{surgery_id, surgery_description}]),
+    physical_abn: JSON.stringify([{physical_abn_id, physical_abn_description}]),
+    other_health_condition, timestamp
+]
