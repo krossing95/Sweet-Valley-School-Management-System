@@ -8,6 +8,12 @@ export const MESSAGES = {
     },
     USERS: {
         EHBT: 'Email address has been taken',
+        SNRF: 'Sorry, no records found',
+        ARF: 'Account has already been verified',
+        SFPLS: 'We sent a new link to your mail, please check to continue.',
+        IVLF: 'Incorrect user verification link, please follow the exact link in your mail',
+        AVS: 'User verified successfully',
+        VLEAYRNVL: 'We have sent a new link to you. Kindly check your mail',
         SRMESS: 'Successful registration, please check your mail to continue. Note: Check your spam if the message is not in your inbox',
     },
     VALIDATOR: {

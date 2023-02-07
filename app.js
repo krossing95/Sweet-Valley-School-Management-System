@@ -32,5 +32,5 @@ app.use(express.json({ limit: '5mb' }))
 app.get('/', (req, res) => {
     return res.send(`Welcome to ${APPLICATIONNAME}`)
 })
-app.use('/users', userRoute)
+app.use('/api/users', userRoute)
 app.listen(PORT, () => console.log(`${APPLICATIONNAME} is running on port ${PORT}`))
