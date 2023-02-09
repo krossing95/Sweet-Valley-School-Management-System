@@ -14,6 +14,12 @@ export const MESSAGES = {
         IVLF: 'Incorrect user verification link, please follow the exact link in your mail',
         AVS: 'User verified successfully',
         VLEAYRNVL: 'We have sent a new link to you. Kindly check your mail',
+        IL: 'Invalid link',
+        PUS: 'Password updated successfully',
+        PRLSS: 'Follow the link in your mail to reset your password.',
+        SUCCL: 'Enter the 5-digit code sent to your mail to login',
+        SL: 'Successful login',
+        IEA: 'Unverified account. Please continue to verify or contact the administrator.',
         SRMESS: 'Successful registration, please check your mail to continue. Note: Check your spam if the message is not in your inbox',
     },
     VALIDATOR: {
@@ -26,11 +32,17 @@ export const MESSAGES = {
         LOPV: 'Password must be at least 8 chars',
         PMD: 'Passwords do not match',
         BRS: 'Bad request',
-        PNINS: 'Phone number must be a numeric string of 10 chars'
+        PNINS: 'Phone number must be a numeric string of 10 chars',
+        UAPR: 'Username and password are required',
+        IC: 'Credentials are incorrect',
+        IOTP: 'Invalid OTP',
     },
     MAILS: {
         VERIFICATION_SUBJECT: 'User Account Verification',
-        TEMPLATE_SIGNATURE: 'Sweet Valley School Team'
+        PASSWORDRECOVERY_SUBJECT: 'Password Reset',
+        TEMPLATE_SIGNATURE: 'Sweet Valley School Team',
+        DEFAULT_USERNAME: 'Dear User',
+        OTP_SUBJECT: 'OTP Verification'
     }
 }
 export const DATATYPES = {
@@ -49,4 +61,14 @@ export const REGEX = {
 }
 export const SUCCESSFULREGISTRATIONCOOKIE = {
     origin: 'http://localhost:5173', maxAge: 1800000, secure: true, sameSite: 'none'
+}
+export const OTPCONFIRMATIONCOOKIE = {
+    origin: 'http://localhost:5173', maxAge: 180000, secure: true, sameSite: 'none'
+}
+export const TOKENCOOKIECONFIG = {
+    origin: 'http://localhost:5173', maxAge: 7200000, secure: true,
+    httpOnly: true, sameSite: 'none'
+}
+export const TOKENTRACKERCOOKIECONFIG = {
+    origin: 'http://localhost:5173', maxAge: 7200000, secure: true, sameSite: 'none'
 }
