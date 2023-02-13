@@ -22,7 +22,7 @@ export default function PasswordRecoveryLinkTemplate(name, link) {
                         <p style="line-height: 30px; padding-bottom: 10px; color: #000000;">We have received your request to alter your password. Please click on the button below to execute the action.</p>
                         <b style="line-height: 30px; padding-bottom: 10px; color: #000000;">Due to security reasons, the link is only usable within 30 minutes. If you do not expect to receive this message, quickly log into your account and change password to a stronger one, as someone may have guessed your credentials.</b>
                         <br><br><br>
-                        <a style="padding: 20px; color: #000000; background-color: #F2007A; border-radius: 5px; text-decoration: none; text-transform: uppercase;" href='${link}'>click here</a>
+                        <a style="padding: 20px; color: #ffffff; background-color: #F2007A; border-radius: 5px; text-decoration: none; text-transform: uppercase;" href='${link}'>click here</a>
                         <br><br><br>
                         <p style="line-height: 20px; padding-bottom: 10px; color: #000000;">Thank you</p>
                         <p style="line-height: 20px; padding-bottom: 10px; color: #000000;">${TEMPLATE_SIGNATURE}</p>

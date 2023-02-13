@@ -1,6 +1,6 @@
 const UserQueryStmt = () => {
     const USERS = 'users', VERIFICATIONS = 'verifications', PASSWORDRESET = 'password_reset',
-        DOUBLEFA = '2fa_dataset'
+        DOUBLEFA = 'doublefa_dataset', ACCESSORS = 'accessors'
 
     // Queries on users table
 
@@ -10,7 +10,7 @@ const UserQueryStmt = () => {
     const CHECKEMAILEXISTENCE = `SELECT * FROM ${USERS} WHERE email = $1`
     const DELETEUSERBYSLUG = `DELETE FROM ${USERS} WHERE slug=$1`
     const GETUSERBYSLUG = `SELECT * FROM ${USERS} WHERE slug = $1`
-    const VERIFYUSER = `UPDATE ${USERS} SET status = $1 WHERE slug = $2`
+    const VERIFYUSER = `UPDATE ${USERS} SET verified = $1 WHERE slug = $2`
     const UPDATEUSERPASSWORD = `UPDATE ${USERS} SET password = $1 WHERE slug = $2`
 
     // Queries on verification table
@@ -21,7 +21,7 @@ const UserQueryStmt = () => {
 
     // Queries on password reset table
 
-    const DELETEALLFORUSERBYSLUG = `DELETE FROM ${PASSWORDRESET} FROM WHERE user_id = $1`
+    const DELETEALLFORUSERBYSLUG = `DELETE FROM ${PASSWORDRESET} WHERE user_id = $1`
     const CREATENEWPASSWORDRESETDATA = `INSERT INTO ${PASSWORDRESET} (user_id, code, timestamp) VALUES ($1, $2, $3)`
     const GETPASSWORDRESETDATA = `SELECT * FROM ${PASSWORDRESET} WHERE user_id = $1`
 
@@ -31,10 +31,14 @@ const UserQueryStmt = () => {
     const GETOTPBYUSER = `SELECT * FROM ${DOUBLEFA} WHERE user_id = $1`
     const CREATENEWOTPDATA = `INSERT INTO ${DOUBLEFA} (user_id, code, timestamp) VALUES ($1, $2, $3)`
 
+    // Queries on accessors table
+
+    const SAVETOKEN = `INSERT INTO ${ACCESSORS} (user_id, token, alive, timestamp) VALUES ($1, $2, $3, $4)`
+
     return {
         INSERTAUSER, CHECKEMAILEXISTENCE, INSERTVERIFICATIONDATA, DELETEUSERBYSLUG, DELETEVERIFICATIONDATA, GETUSERBYSLUG,
         GETVERIFICATIONDATA, VERIFYUSER, DELETEALLFORUSERBYSLUG, CREATENEWPASSWORDRESETDATA, GETPASSWORDRESETDATA, UPDATEUSERPASSWORD,
-        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER
+        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER, SAVETOKEN
     }
 }
 export default UserQueryStmt

@@ -33,11 +33,10 @@ export default function UserValidators() {
         return next()
     }
     const otpValidator = (user, otp, next) => {
-        if (!user.length || !otp.length) return { error: BRS }
         if (!user.match(MONGOOBJECT)) return { error: BRS }
         if (!otp.match(NUMERICAL)) return { error: IOTP }
         if (otp.length !== 5) return { error: IOTP }
-        return next()
+        next()
     }
 
     return {
