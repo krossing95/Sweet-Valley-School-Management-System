@@ -12,6 +12,8 @@ const UserQueryStmt = () => {
     const GETUSERBYSLUG = `SELECT * FROM ${USERS} WHERE slug = $1`
     const VERIFYUSER = `UPDATE ${USERS} SET verified = $1 WHERE slug = $2`
     const UPDATEUSERPASSWORD = `UPDATE ${USERS} SET password = $1 WHERE slug = $2`
+    const SELECTUSERS = `SELECT slug, firstname, lastname, othername, email, phone, verified, timestamp, usertype FROM ${USERS} ORDER BY lastname ASC`
+    const UPDATEUSERINFO = `UPDATE ${USERS} SET firstname = $1, lastname = $2, email = $3, phone = $4, othername = $5, usertype = $6 WHERE slug = $7`
 
     // Queries on verification table
 
@@ -34,11 +36,12 @@ const UserQueryStmt = () => {
     // Queries on accessors table
 
     const SAVETOKEN = `INSERT INTO ${ACCESSORS} (user_id, token, alive, timestamp) VALUES ($1, $2, $3, $4)`
+    const CLEARALLSAVEDTOKENS = `DELETE FROM $${ACCESSORS} WHERE user_id = $1`
 
     return {
         INSERTAUSER, CHECKEMAILEXISTENCE, INSERTVERIFICATIONDATA, DELETEUSERBYSLUG, DELETEVERIFICATIONDATA, GETUSERBYSLUG,
         GETVERIFICATIONDATA, VERIFYUSER, DELETEALLFORUSERBYSLUG, CREATENEWPASSWORDRESETDATA, GETPASSWORDRESETDATA, UPDATEUSERPASSWORD,
-        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER, SAVETOKEN
+        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER, SAVETOKEN, CLEARALLSAVEDTOKENS, SELECTUSERS, UPDATEUSERINFO
     }
 }
 export default UserQueryStmt

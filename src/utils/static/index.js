@@ -19,6 +19,7 @@ export const MESSAGES = {
         PRLSS: 'Follow the link in your mail to reset your password.',
         SUCCL: 'Enter the 5-digit code sent to your mail to login',
         SL: 'Successful login',
+        UIUS: 'User information updated successfully',
         IEA: 'Unverified account. Please continue to verify or contact the administrator.',
         SRMESS: 'Successful registration, please check your mail to continue. Note: Check your spam if the message is not in your inbox',
     },
@@ -36,6 +37,7 @@ export const MESSAGES = {
         UAPR: 'Username and password are required',
         IC: 'Credentials are incorrect',
         IOTP: 'Invalid OTP',
+        CUWR: 'Chosen usertype was rejected'
     },
     MAILS: {
         VERIFICATION_SUBJECT: 'User Account Verification',
@@ -71,4 +73,7 @@ export const TOKENCOOKIECONFIG = {
 }
 export const TOKENTRACKERCOOKIECONFIG = {
     origin: 'http://localhost:5173', maxAge: 7200000, secure: true, sameSite: 'none'
+}
+export const NUMERICAL_ENTITY = {
+    USERTYPE: [1, 2, 3]
 }

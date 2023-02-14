@@ -4,10 +4,13 @@ import UserControllers from '../controllers/controller.users.js'
 const userRoute = express.Router()
 
 const { fetchUsers, userRegistration, resendVerificationLink, verifyUser,
-    passwordRecovery, passwordReset, firstStepUserLogin, secondStepUserLogin
+    passwordRecovery, passwordReset, firstStepUserLogin, secondStepUserLogin,
+    fetchUser, updateUser
 } = UserControllers()
 
 userRoute.get('/', fetchUsers)
+userRoute.get('/user', fetchUser)
+userRoute.patch('/', updateUser) // add admin_middleware
 userRoute.post('/', userRegistration)
 userRoute.post('/resend-verification', resendVerificationLink)
 userRoute.patch('/verify-user', verifyUser)
