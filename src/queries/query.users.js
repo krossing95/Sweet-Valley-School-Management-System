@@ -36,7 +36,7 @@ const UserQueryStmt = () => {
     // Queries on accessors table
 
     const SAVETOKEN = `INSERT INTO ${ACCESSORS} (user_id, token, alive, timestamp) VALUES ($1, $2, $3, $4)`
-    const CLEARALLSAVEDTOKENS = `DELETE FROM $${ACCESSORS} WHERE user_id = $1`
+    const CLEARALLSAVEDTOKENS = `DELETE FROM ${ACCESSORS} WHERE user_id = $1`
 
     return {
         INSERTAUSER, CHECKEMAILEXISTENCE, INSERTVERIFICATIONDATA, DELETEUSERBYSLUG, DELETEVERIFICATIONDATA, GETUSERBYSLUG,

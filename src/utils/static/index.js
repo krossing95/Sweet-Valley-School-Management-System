@@ -1,10 +1,10 @@
-export const STATICDATA = {
-    APPLICATIONNAME: 'Sweet Valley Creche and Montessori School Management System'
+export const APP_OBJECT = {
+    name: 'Sweet Valley Creche and Montessori School Management System'
 }
 export const MESSAGES = {
     MESSAGES: {
         WSWW: 'Whoops! Something went wrong',
-        BRS: 'Bad request'
+        BRS: 'Bad request received'
     },
     USERS: {
         EHBT: 'Email address has been taken',
@@ -20,6 +20,7 @@ export const MESSAGES = {
         SUCCL: 'Enter the 5-digit code sent to your mail to login',
         SL: 'Successful login',
         UIUS: 'User information updated successfully',
+        ADS: 'User deleted successfully',
         IEA: 'Unverified account. Please continue to verify or contact the administrator.',
         SRMESS: 'Successful registration, please check your mail to continue. Note: Check your spam if the message is not in your inbox',
     },
@@ -32,12 +33,13 @@ export const MESSAGES = {
         IEAV: 'Incorrect email address',
         LOPV: 'Password must be at least 8 chars',
         PMD: 'Passwords do not match',
-        BRS: 'Bad request',
+        BRS: 'Bad request received',
         PNINS: 'Phone number must be a numeric string of 10 chars',
         UAPR: 'Username and password are required',
         IC: 'Credentials are incorrect',
         IOTP: 'Invalid OTP',
-        CUWR: 'Chosen usertype was rejected'
+        CUWR: 'Chosen usertype got rejected',
+        CGGR: 'Chosen gender got rejected',
     },
     MAILS: {
         VERIFICATION_SUBJECT: 'User Account Verification',
@@ -45,6 +47,16 @@ export const MESSAGES = {
         TEMPLATE_SIGNATURE: 'Sweet Valley School Team',
         DEFAULT_USERNAME: 'Dear User',
         OTP_SUBJECT: 'OTP Verification'
+    },
+    STUDENTS: {
+        AFAR: 'Most important fields are missing',
+        DEFERR: 'Date entities must be in the format, MM/DD/YYYY',
+        HLFE: 'Home language must contain only English alphabets and whitespaces',
+        CCCGR: 'Chosen current class got rejected',
+        PTII: 'Parent type is invalid',
+        SRS: 'Student created successfully',
+        CCDNDOB: 'Check date of birth and commencement date well',
+        ONERR: 'Othernames must contain only English alphabets and whitespaces and at most 30 chars'
     }
 }
 export const DATATYPES = {
@@ -75,5 +87,10 @@ export const TOKENTRACKERCOOKIECONFIG = {
     origin: 'http://localhost:5173', maxAge: 7200000, secure: true, sameSite: 'none'
 }
 export const NUMERICAL_ENTITY = {
-    USERTYPE: [1, 2, 3]
+    USERTYPE: [1, 2, 3],
+    TWOINARRAY: [1, 2], // true or false datatype
+    THREEINARRAY: [1, 2, 3], // gender, 
+    CLASSES: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    // 1 => creche, 2 => nursery1, 3 => nursery2, 4 => kg1, 5 => kg2, 6 => basic1,
+    // 7 => basic2, 8 => basic3, 9 => basic4, 10 => basic5, 11 => basic6, 12 => basic7, 13 => basic8, 14 => basic9
 }

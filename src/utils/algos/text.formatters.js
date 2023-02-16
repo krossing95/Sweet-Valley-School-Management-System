@@ -8,7 +8,11 @@ export default function TextFormatters() {
         const formattedString = array.map(str => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         return formattedString.join(' ')
     }
+    const cleanText = (string) => {
+        if (typeof string === UNDEFINED || string === null) return ''
+        return string.trim().replace('<script>', '').replace('</script>', '')
+    }
     return {
-        capitalize
+        capitalize, cleanText
     }
 }

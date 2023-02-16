@@ -3,10 +3,11 @@ import dotenv from 'dotenv'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import { STATICDATA } from './src/utils/static/index.js'
+import { APP_OBJECT } from './src/utils/static/index.js'
 import userRoute from './src/routes/route.users.js'
+import studentRoute from './src/routes/route.students.js'
 
-const { APPLICATIONNAME } = STATICDATA
+const { name } = APP_OBJECT
 
 const app = express()
 dotenv.config()
@@ -30,7 +31,8 @@ app.use(function (req, res, next) {
 app.use(express.json({ limit: '5mb' }))
 
 app.get('/', (req, res) => {
-    return res.send(`Welcome to ${APPLICATIONNAME}`)
+    return res.send(`Welcome to ${name}`)
 })
 app.use('/api/users', userRoute)
-app.listen(PORT, () => console.log(`${APPLICATIONNAME} is running on port ${PORT}`))
+app.use('/api/students', studentRoute)
+app.listen(PORT, () => console.log(`${name} is running on port ${PORT}`))
