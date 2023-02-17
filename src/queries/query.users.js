@@ -14,6 +14,7 @@ const UserQueryStmt = () => {
     const UPDATEUSERPASSWORD = `UPDATE ${USERS} SET password = $1 WHERE slug = $2`
     const SELECTUSERS = `SELECT slug, firstname, lastname, othername, email, phone, verified, timestamp, usertype FROM ${USERS} ORDER BY lastname ASC`
     const UPDATEUSERINFO = `UPDATE ${USERS} SET firstname = $1, lastname = $2, email = $3, phone = $4, othername = $5, usertype = $6 WHERE slug = $7`
+    const GETPARENTBYSTUDENTID = `SELECT slug, firstname, lastname, othername, email, phone FROM ${USERS} WHERE slug = $1`
 
     // Queries on verification table
 
@@ -41,7 +42,8 @@ const UserQueryStmt = () => {
     return {
         INSERTAUSER, CHECKEMAILEXISTENCE, INSERTVERIFICATIONDATA, DELETEUSERBYSLUG, DELETEVERIFICATIONDATA, GETUSERBYSLUG,
         GETVERIFICATIONDATA, VERIFYUSER, DELETEALLFORUSERBYSLUG, CREATENEWPASSWORDRESETDATA, GETPASSWORDRESETDATA, UPDATEUSERPASSWORD,
-        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER, SAVETOKEN, CLEARALLSAVEDTOKENS, SELECTUSERS, UPDATEUSERINFO
+        DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER, SAVETOKEN, CLEARALLSAVEDTOKENS, SELECTUSERS, UPDATEUSERINFO,
+        GETPARENTBYSTUDENTID
     }
 }
 export default UserQueryStmt

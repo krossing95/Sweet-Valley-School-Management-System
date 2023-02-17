@@ -4,7 +4,8 @@ export const APP_OBJECT = {
 export const MESSAGES = {
     MESSAGES: {
         WSWW: 'Whoops! Something went wrong',
-        BRS: 'Bad request received'
+        BRS: 'Bad request received',
+        ACNBE: 'Action could not be executed'
     },
     USERS: {
         EHBT: 'Email address has been taken',
@@ -56,6 +57,9 @@ export const MESSAGES = {
         PTII: 'Parent type is invalid',
         SRS: 'Student created successfully',
         CCDNDOB: 'Check date of birth and commencement date well',
+        PDNF: 'Parent data not found',
+        CNASTUU: 'Cannot assign student to unverified user',
+        SNRF: 'Sorry, no student records found',
         ONERR: 'Othernames must contain only English alphabets and whitespaces and at most 30 chars'
     }
 }
