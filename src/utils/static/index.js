@@ -5,7 +5,8 @@ export const MESSAGES = {
     MESSAGES: {
         WSWW: 'Whoops! Something went wrong',
         BRS: 'Bad request received',
-        ACNBE: 'Action could not be executed'
+        ACNBE: 'Action could not be executed',
+        NCFY: 'No changes found yet'
     },
     USERS: {
         EHBT: 'Email address has been taken',
@@ -41,6 +42,9 @@ export const MESSAGES = {
         IOTP: 'Invalid OTP',
         CUWR: 'Chosen usertype got rejected',
         CGGR: 'Chosen gender got rejected',
+        UECFIA: 'Unexpected chars found in address fields',
+        UECFIOE: 'Unexpected chars found in occupation or employer fields',
+        UECFIAL: 'Unexpected chars found in address or last school attended fields'
     },
     MAILS: {
         VERIFICATION_SUBJECT: 'User Account Verification',
@@ -60,6 +64,9 @@ export const MESSAGES = {
         PDNF: 'Parent data not found',
         CNASTUU: 'Cannot assign student to unverified user',
         SNRF: 'Sorry, no student records found',
+        NSRFFP: 'User does not have any ward in the school',
+        SUS: 'Student updated successfully',
+        PISS: 'Parent information saved successfully',
         ONERR: 'Othernames must contain only English alphabets and whitespaces and at most 30 chars'
     }
 }
@@ -75,7 +82,8 @@ export const REGEX = {
     ALPHA: /^[a-zA-Z ]*$/,
     ALPHANUMERIC: /^([a-zA-Z0-9 _-]+)$/,
     MONGOOBJECT: /^[0-9a-fA-F]{24}$/,
-    SPECIALCHARS: /\W|_/g
+    SPECIALCHARS: /\W|_/g,
+    CSVDOT_HYPHEN: /^[a-zA-Z0-9 .,-]{0,150}$/
 }
 export const SUCCESSFULREGISTRATIONCOOKIE = {
     origin: 'http://localhost:5173', maxAge: 1800000, secure: true, sameSite: 'none'
@@ -98,3 +106,7 @@ export const NUMERICAL_ENTITY = {
     // 1 => creche, 2 => nursery1, 3 => nursery2, 4 => kg1, 5 => kg2, 6 => basic1,
     // 7 => basic2, 8 => basic3, 9 => basic4, 10 => basic5, 11 => basic6, 12 => basic7, 13 => basic8, 14 => basic9
 }
+export const PARENT_INFO_DATAKEYS = [
+    'f_firstname', 'f_lastname', 'f_othername', 'f_telephone', 'f_home_address', 'f_postal_address', 'f_occupation', 'f_employer', 'f_work_address',
+    'm_firstname', 'm_lastname', 'm_othername', 'm_telephone', 'm_home_address', 'm_postal_address', 'm_occupation', 'm_employer', 'm_work_address'
+]

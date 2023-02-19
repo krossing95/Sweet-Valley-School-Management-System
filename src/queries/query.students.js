@@ -1,5 +1,5 @@
 export default function StudentQueries() {
-    const STUDENTS = 'students'
+    const STUDENTS = 'students', PARENTINFO = 'parent_information'
 
     // Student's basic info queries
 
@@ -8,7 +8,20 @@ export default function StudentQueries() {
         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14, $15)`
     const GETSTUDENTS = `SELECT * FROM ${STUDENTS} ORDER BY lastname ASC`
     const SELECTSTUDENTBYID = `SELECT * FROM ${STUDENTS} WHERE d_id = $1`
+    const SELECTSTUDENTSBYPARENT = `SELECT * FROM ${STUDENTS} WHERE parent_id = $1`
+    const UPDATESTUDENTDATA = `UPDATE ${STUDENTS} SET parent_id = $1, firstname = $2, lastname = $3, othername = $4, 
+    gender = $5, dob = $6, home_lang = $7, telephone = $8, address = $9, commencement_date = $10, last_sch_attended = $11, 
+    current_class = $12, updated_at = $13, parent_type = $14, is_new = $15 WHERE d_id = $16`
+
+    // Parent information queries
+
+    const SAVEPARENTDATA = `INSERT INTO ${PARENTINFO} (student_id, father_info, mother_info, created_at, updated_at) 
+    VALUES ($1, $2, $3, $4, $4)`
+    const DELETEPARENTDATA = `DELETE FROM ${PARENTINFO} WHERE student_id = $1`
+    const GETPARENTINFOBYSID = `SELECT * FROM ${PARENTINFO} WHERE student_id = $1`
+
     return {
-        REGISTERSTUDENT, GETSTUDENTS, SELECTSTUDENTBYID
+        REGISTERSTUDENT, GETSTUDENTS, SELECTSTUDENTBYID, SELECTSTUDENTSBYPARENT, UPDATESTUDENTDATA,
+        SAVEPARENTDATA, DELETEPARENTDATA, GETPARENTINFOBYSID
     }
 }
