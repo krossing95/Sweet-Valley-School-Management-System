@@ -11,10 +11,12 @@ import moment from 'moment'
 import GoogleBotChecker from '../utils/algos/google.captcha.js'
 import * as JWT from 'jsonwebtoken'
 import url from 'url'
+import StudentQueries from '../queries/query.students.js'
 
 const UserControllers = () => {
-    const { BRS, WSWW } = MESSAGES.MESSAGES
+    const { BRS, WSWW, NCFY } = MESSAGES.MESSAGES
     const { ADS, EHBT, SRMESS, SNRF, ARF, SFPLS, IVLF, AVS, VLEAYRNVL, PRLSS, IL, PUS, IEA, SUCCL, SL, UIUS } = MESSAGES.USERS
+    const { NSRFFP } = MESSAGES.STUDENTS
     const { IEAV, IOTP, IC } = MESSAGES.VALIDATOR
     const { EMAIL, MONGOOBJECT } = REGEX
     const { sign } = JWT.default
@@ -25,6 +27,7 @@ const UserControllers = () => {
         GETPASSWORDRESETDATA, UPDATEUSERPASSWORD, DELETEMANYCODESFORUSER, CREATENEWOTPDATA, GETOTPBYUSER,
         SAVETOKEN, CLEARALLSAVEDTOKENS, SELECTUSERS, UPDATEUSERINFO
     } = UserQueryStmt()
+    const { SELECTSTUDENTSBYPARENT, SELECTALLINFO } = StudentQueries()
     const { userRegistrationValidator, passwordResetValidator, loginValidator, otpValidator, userUpdateValidate } = UserValidators()
     const { capitalize } = TextFormatters()
     const { TransitVerificationLink, TransitPasswordResetLink, TransitOTPData } = Mailer()
@@ -309,9 +312,8 @@ const UserControllers = () => {
                 usertype = parseInt(usertype), firstname = capitalize(firstname), lastname = capitalize(lastname), othername = othername.length >= 3 ? capitalize(othername) : '', phone = parseInt(phone), email = email.trim()
                 const update = () => {
                     const patch = pool.query(UPDATEUSERINFO, [firstname, lastname, email, phone, othername, usertype, user_id]).then(response => {
-                        const user = response.rows[0]
-                        user.password = undefined, user.id = undefined
-                        return res.status(200).json({ message: UIUS, data: { ...user } })
+                        if (response.rowCount === 0) return res.status(500).json({ message: ACNBE })
+                        return res.status(200).json({ message: UIUS })
                     }).catch(err => {
                         return res.status(500).json({ error: WSWW })
                     })
@@ -319,6 +321,7 @@ const UserControllers = () => {
                 }
                 if (result.rowCount === 0) return update()
                 const user = result.rows[0]
+                if (user.firstname === firstname && user.lastname === lastname && user.email === email && user.phone === Number(phone.toString().slice(0)) && user.othername === othername && user.usertype === Number(usertype)) return res.status(412).json({ error: NCFY })
                 if (user.slug !== user_id) return res.status(412).json({ error: EHBT })
                 return update()
             }).catch(err => {

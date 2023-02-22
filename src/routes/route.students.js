@@ -5,7 +5,7 @@ const studentRoute = express.Router()
 
 const {
     createNewStudent, fetchStudents, fetchStudent, fetchStudentsByParent, updateStudentData,
-    createParentData
+    createParentData, fetchParentInformation
 } = StudentController()
 
 studentRoute.post('/', createNewStudent) // add middleware.admin
@@ -16,4 +16,5 @@ studentRoute.patch('/', updateStudentData) // add middleware.admin
 
 // parent_info
 studentRoute.post('/parent-information', createParentData) // add middleware.admin
+studentRoute.get('/parent-information', fetchParentInformation)// add middleware.user
 export default studentRoute

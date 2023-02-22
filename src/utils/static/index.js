@@ -44,7 +44,8 @@ export const MESSAGES = {
         CGGR: 'Chosen gender got rejected',
         UECFIA: 'Unexpected chars found in address fields',
         UECFIOE: 'Unexpected chars found in occupation or employer fields',
-        UECFIAL: 'Unexpected chars found in address or last school attended fields'
+        UECFIAL: 'Unexpected chars found in address or last school attended fields',
+        IDR: 'Incorrect data representation'
     },
     MAILS: {
         VERIFICATION_SUBJECT: 'User Account Verification',

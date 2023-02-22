@@ -14,13 +14,13 @@ export default function StudentController() {
     const { pool } = DatabaseConnection()
     const {
         REGISTERSTUDENT, GETSTUDENTS, SELECTSTUDENTBYID, SELECTSTUDENTSBYPARENT, UPDATESTUDENTDATA,
-        SAVEPARENTDATA, DELETEPARENTDATA
+        SAVEPARENTDATA, DELETEPARENTDATA, GETPARENTINFOBYSID
     } = StudentQueries()
     const { GETUSERBYSLUG, SELECTUSERS, GETPARENTBYSTUDENTID } = UserQueryStmt()
     const { WSWW, ACNBE, BRS, NCFY } = MESSAGES.MESSAGES
-    const { SRS, PDNF, CNASTUU, SNRF, NSRFFP, SUS, PISS } = MESSAGES.STUDENTS
-    const { AFAR, UECFIAL } = MESSAGES.VALIDATOR
-    const { MONGOOBJECT, CSVDOT_HYPHEN } = REGEX
+    const { SRS, PDNF, CNASTUU, SNRF, NSRFFP, SUS, PISS, ONERR } = MESSAGES.STUDENTS
+    const { AFAR, UECFIAL, NMBEA, NATL, PNINS, IDR } = MESSAGES.VALIDATOR
+    const { MONGOOBJECT, CSVDOT_HYPHEN, ALPHA, NUMERICAL } = REGEX
     const { TWOINARRAY } = NUMERICAL_ENTITY
     const createNewStudent = (req, res) => {
         let {
@@ -146,8 +146,34 @@ export default function StudentController() {
     const changeFreshStudentToContinuing = (req, res) => {
         // update all students's is_new prop to false if the diff btwn current date and the enrolment date is >= 8 months
     }
+    const validateParentFields = (data, res, parent_type) => {
+        const { f_firstname, f_lastname, f_othername, m_firstname, m_lastname, m_othername, f_telephone, m_telephone } = data
+        if (parent_type === 3) { //guardian
+            if (!f_firstname.match(ALPHA) || !f_lastname.match(ALPHA) || !m_firstname.match(ALPHA) || !m_lastname.match(ALPHA)) return res.status(412).json({ error: NMBEA })
+            if (f_firstname.length < 3 || f_firstname.length > 30 || f_lastname.length < 3 || f_lastname.length > 30 || m_firstname.length < 3 || m_firstname.length > 30 || m_lastname.length < 3 || m_lastname.length > 30) return res.status(412).json({ error: NATL })
+            if (!f_telephone.match(NUMERICAL) || !m_telephone.match(NUMERICAL) || f_telephone.length !== 10 || m_telephone.length !== 10) return res.status(412).json({ error: PNINS })
+            const fOthername = f_othername.trim().length > 0, mOthername = m_othername.trim().length > 0
+            if (!fOthername && !mOthername) return true
+            if (fOthername && (!f_othername.match(ALPHA) || f_othername.length > 30)) return res.status(412).json({ error: ONERR })
+            if (mOthername && (!m_othername.match(ALPHA) || m_othername.length > 30)) return res.status(412).json({ error: ONERR })
+        } else if (parent_type === 2) { // father
+            if (!m_firstname.match(ALPHA) || !m_lastname.match(ALPHA)) return res.status(412).json({ error: NMBEA })
+            if (m_firstname.length < 3 || m_firstname.length > 30 || m_lastname.length < 3 || m_lastname.length > 30) return res.status(412).json({ error: NATL })
+            if (!m_telephone.match(NUMERICAL) || m_telephone.length !== 10) return res.status(412).json({ error: PNINS })
+            const mOthername = m_othername.trim().length > 3
+            if (!mOthername) return true
+            if (mOthername && (!m_othername.match(ALPHA) || m_othername.length > 30)) return res.status(412).json({ error: ONERR })
+        } else if (parent_type === 1) { // mother
+            if (!f_firstname.match(ALPHA) || !f_lastname.match(ALPHA)) return res.status(412).json({ error: NMBEA })
+            if (f_firstname.length < 3 || f_firstname.length > 30 || f_lastname.length < 3 || f_lastname.length > 30) return res.status(412).json({ error: NATL })
+            if (!f_telephone.match(NUMERICAL) || f_telephone.length !== 10) return res.status(412).json({ error: PNINS })
+            const fOthername = f_othername.trim().length > 3
+            if (!fOthername) return true
+            if (fOthername && (!f_othername.match(ALPHA) || f_othername.length > 30)) return res.status(412).json({ error: ONERR })
+        }
+    }
     const createParentData = (req, res) => {
-        let { father_info, mother_info, student_id } = req.body // mother => 1, father => 2
+        let { father_info, mother_info, student_id } = req.body // mother => 1, father => 2, guardian => 3
         let data = { ...father_info, ...mother_info }, isIncluded = true
         PARENT_INFO_DATAKEYS.map(key => {
             if (!Object.keys(data).includes(key)) isIncluded = false
@@ -158,36 +184,33 @@ export default function StudentController() {
             pool.query(SELECTSTUDENTBYID, [student_id]).then(result => {
                 if (result.rowCount !== 1) return res.status(404).json({ error: SNRF })
                 const parent_type = result.rows[0].parent_type, parent_id = result.rows[0].parent_id, timestamp = (new Date()).toISOString()
-                return pool.query(GETUSERBYSLUG, [parent_id]).then(response => {
-                    const parent = response.rows[0]
-                    data = {
-                        ...data, f_firstname: parent_type === 2 ? parent.firstname : data.f_firstname,
-                        f_lastname: parent_type === 2 ? parent.lastname : data.f_lastname,
-                        f_othername: parent_type === 2 ? parent.othername : data.f_othername,
-                        f_telephone: parent_type === 2 ? `0${parent.phone}` : data.f_telephone,
-                        m_firstname: parent_type === 1 ? parent.firstname : data.m_firstname,
-                        m_lastname: parent_type === 1 ? parent.lastname : data.m_lastname,
-                        m_othername: parent_type === 1 ? parent.othername : data.m_othername,
-                        m_telephone: parent_type === 1 ? `0${parent.phone}` : data.m_telephone
-                    }
-                    father_info = { home_address: capitalize(data.f_home_address), postal_address: capitalize(data.f_postal_address), occupation: capitalize(data.f_occupation), employer: capitalize(data.f_employer), work_address: capitalize(data.f_work_address), firstname: capitalize(data.f_firstname), lastname: capitalize(data.f_lastname), othername: capitalize(data.f_othername), telephone: data.f_telephone }
-                    mother_info = { home_address: capitalize(data.m_home_address), postal_address: capitalize(data.m_postal_address), occupation: capitalize(data.m_occupation), employer: capitalize(data.m_employer), work_address: capitalize(data.m_work_address), firstname: capitalize(data.m_firstname), lastname: capitalize(data.m_lastname), othername: capitalize(data.m_othername), telephone: data.m_telephone }
-                    const createNewParentData = () => {
-                        pool.query(DELETEPARENTDATA, [student_id]).catch(err => {
-                            return res.status(500).json(WSWW)
-                        })
-                        const create = pool.query(SAVEPARENTDATA, [student_id, father_info, mother_info, timestamp]).then(saved => {
-                            if (saved.rowCount > 0) return res.status(201).json({ message: PISS })
-                            return res.status(500).json({ message: ACNBE })
-                        }).catch(err => {
-                            return res.status(500).json({ error: WSWW })
-                        })
-                        return create
-                    }
-                    return createNewParentData()
-                }).catch(err => {
-                    return res.status(500).json({ error: WSWW })
-                })
+                data = {
+                    ...data, f_firstname: parent_type === 2 ? '' : data.f_firstname,
+                    f_lastname: parent_type === 2 ? '' : data.f_lastname,
+                    f_othername: parent_type === 2 ? '' : data.f_othername,
+                    f_telephone: parent_type === 2 ? '' : data.f_telephone,
+                    m_firstname: parent_type === 1 ? '' : data.m_firstname,
+                    m_lastname: parent_type === 1 ? '' : data.m_lastname,
+                    m_othername: parent_type === 1 ? '' : data.m_othername,
+                    m_telephone: parent_type === 1 ? '' : data.m_telephone
+                }
+                const validity = validateParentFields(data, res, parent_type)
+                if (validity !== true) return res.status(412).json({ error: IDR })
+                father_info = { home_address: capitalize(data.f_home_address), postal_address: capitalize(data.f_postal_address), occupation: capitalize(data.f_occupation), employer: capitalize(data.f_employer), work_address: capitalize(data.f_work_address), firstname: capitalize(data.f_firstname), lastname: capitalize(data.f_lastname), othername: capitalize(data.f_othername), telephone: data.f_telephone, parent_id: parent_type === 2 ? parent_id : undefined }
+                mother_info = { home_address: capitalize(data.m_home_address), postal_address: capitalize(data.m_postal_address), occupation: capitalize(data.m_occupation), employer: capitalize(data.m_employer), work_address: capitalize(data.m_work_address), firstname: capitalize(data.m_firstname), lastname: capitalize(data.m_lastname), othername: capitalize(data.m_othername), telephone: data.m_telephone, parent_id: parent_type === 1 ? parent_id : undefined }
+                const createNewParentData = () => {
+                    pool.query(DELETEPARENTDATA, [student_id]).catch(err => {
+                        return res.status(500).json(WSWW)
+                    })
+                    const create = pool.query(SAVEPARENTDATA, [student_id, father_info, mother_info, timestamp]).then(saved => {
+                        if (saved.rowCount > 0) return res.status(201).json({ message: PISS })
+                        return res.status(500).json({ message: ACNBE })
+                    }).catch(err => {
+                        return res.status(500).json({ error: WSWW })
+                    })
+                    return create
+                }
+                return createNewParentData()
             }).catch(err => {
                 return res.status(500).json({ error: WSWW })
             })
@@ -195,8 +218,21 @@ export default function StudentController() {
         if (validate !== undefined) return res.status(412).json({ error: validate.error })
         return validate
     }
+    const fetchParentInformation = (req, res) => {
+        const params = new URLSearchParams(url.parse(req.url, true).query)
+        if (!params.get('student_id')) return res.status(400).json({ error: BRS })
+        if (!params.get('student_id').match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        const student_id = params.get('student_id')
+        const retrieve = pool.query(GETPARENTINFOBYSID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNRF })
+            return res.status(200).json(result.rows[0])
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+        return retrieve
+    }
     return {
         createNewStudent, fetchStudents, fetchStudent, fetchStudentsByParent, updateStudentData,
-        createParentData, changeFreshStudentToContinuing
+        createParentData, changeFreshStudentToContinuing, fetchParentInformation
     }
 }
