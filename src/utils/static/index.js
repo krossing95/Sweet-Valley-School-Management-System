@@ -68,6 +68,12 @@ export const MESSAGES = {
         NSRFFP: 'User does not have any ward in the school',
         SUS: 'Student updated successfully',
         PISS: 'Parent information saved successfully',
+        PDDS: 'Parent information removed',
+        TMCR: 'Too many contacts received',
+        SAHC: 'Student already has registered contacts',
+        CDSS: 'Contact saved for student successfully',
+        SNCIF: 'Sorry, no contacts information found',
+        CIRS: 'Contact information removed sucessfully',
         ONERR: 'Othernames must contain only English alphabets and whitespaces and at most 30 chars'
     }
 }
@@ -110,4 +116,8 @@ export const NUMERICAL_ENTITY = {
 export const PARENT_INFO_DATAKEYS = [
     'f_firstname', 'f_lastname', 'f_othername', 'f_telephone', 'f_home_address', 'f_postal_address', 'f_occupation', 'f_employer', 'f_work_address',
     'm_firstname', 'm_lastname', 'm_othername', 'm_telephone', 'm_home_address', 'm_postal_address', 'm_occupation', 'm_employer', 'm_work_address'
+]
+export const EMERGENCY_CONTACT_DATAKEYS = [
+    'firstname', 'lastname', 'telephone', 'home_address', 'postal_address', 'occupation',
+    'employer', 'work_address', 'relationship'
 ]

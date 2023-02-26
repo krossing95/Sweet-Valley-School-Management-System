@@ -17,6 +17,7 @@ const UserControllers = () => {
     const { BRS, WSWW, NCFY } = MESSAGES.MESSAGES
     const { ADS, EHBT, SRMESS, SNRF, ARF, SFPLS, IVLF, AVS, VLEAYRNVL, PRLSS, IL, PUS, IEA, SUCCL, SL, UIUS } = MESSAGES.USERS
     const { NSRFFP } = MESSAGES.STUDENTS
+    const { ACNBE } = MESSAGES.MESSAGES
     const { IEAV, IOTP, IC } = MESSAGES.VALIDATOR
     const { EMAIL, MONGOOBJECT } = REGEX
     const { sign } = JWT.default
@@ -339,7 +340,7 @@ const UserControllers = () => {
         // check if there's a student attached and anonym
         pool.query(DELETEUSERBYSLUG, [user]).then(response => {
             if (response.rowCount > 0) return res.status(200).json({ message: ADS })
-            return res.status(200).json({ error: SNRF })
+            return res.status(500).json({ error: ACNBE })
         }).catch(err => {
             return res.status(500).json({ error: WSWW })
         })
