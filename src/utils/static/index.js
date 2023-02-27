@@ -74,6 +74,12 @@ export const MESSAGES = {
         CDSS: 'Contact saved for student successfully',
         SNCIF: 'Sorry, no contacts information found',
         CIRS: 'Contact information removed sucessfully',
+        CDRS: 'Contact information recreated successfully',
+        TMDR: 'Too many delegates received',
+        SAHD: 'Student already has registered delegates',
+        DDSS: 'Delegate data saved for student successfully',
+        SNDDF: 'Sorry, no delegates data found',
+        DDRS: 'Delegate data removed successfully',
         ONERR: 'Othernames must contain only English alphabets and whitespaces and at most 30 chars'
     }
 }
@@ -120,4 +126,8 @@ export const PARENT_INFO_DATAKEYS = [
 export const EMERGENCY_CONTACT_DATAKEYS = [
     'firstname', 'lastname', 'telephone', 'home_address', 'postal_address', 'occupation',
     'employer', 'work_address', 'relationship'
+]
+export const DELEGATES_DATAKEYS = [
+    'firstname', 'lastname', 'telephone', 'home_address', 'postal_address', 'occupation',
+    'employer', 'work_address'
 ]

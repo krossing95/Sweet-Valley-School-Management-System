@@ -1,7 +1,7 @@
 import TextFormatters from "../utils/algos/text.formatters.js"
 import StudentDataValidator from "../utils/validators/validator.students.js"
 import { ObjectId } from "bson"
-import { EMERGENCY_CONTACT_DATAKEYS, MESSAGES, NUMERICAL_ENTITY, PARENT_INFO_DATAKEYS, REGEX } from "../utils/static/index.js"
+import { DELEGATES_DATAKEYS, EMERGENCY_CONTACT_DATAKEYS, MESSAGES, NUMERICAL_ENTITY, PARENT_INFO_DATAKEYS, REGEX } from "../utils/static/index.js"
 import DatabaseConnection from '../configs/config.connection.js'
 import StudentQueries from "../queries/query.students.js"
 import UserQueryStmt from "../queries/query.users.js"
@@ -15,11 +15,11 @@ export default function StudentController() {
     const {
         REGISTERSTUDENT, GETSTUDENTS, SELECTSTUDENTBYID, SELECTSTUDENTSBYPARENT, UPDATESTUDENTDATA,
         SAVEPARENTDATA, DELETEPARENTDATA, GETPARENTINFOBYSID, GETCONTACTBYSID, SAVECONTACT,
-        DELETECONTACTBYSID, RESAVECONTACT
+        DELETECONTACTBYSID, RESAVECONTACT, GETDELEGATEBYSID, DELETEDELEGATEBYSID, SAVEDELEGATES
     } = StudentQueries()
     const { GETUSERBYSLUG, SELECTUSERS, GETPARENTBYSTUDENTID } = UserQueryStmt()
     const { WSWW, ACNBE, BRS, NCFY } = MESSAGES.MESSAGES
-    const { SRS, PDNF, CNASTUU, SNRF, NSRFFP, SUS, PISS, ONERR, PDDS, TMCR, SAHC, CDSS, SNCIF, CIRS } = MESSAGES.STUDENTS
+    const { DDRS, SNDDF, DDSS, SAHD, SRS, PDNF, CNASTUU, SNRF, NSRFFP, SUS, PISS, ONERR, PDDS, TMCR, SAHC, CDSS, SNCIF, CIRS, CDRS, TMDR } = MESSAGES.STUDENTS
     const { AFAR, UECFIAL, NMBEA, NATL, PNINS, IDR } = MESSAGES.VALIDATOR
     const { MONGOOBJECT, CSVDOT_HYPHEN, ALPHA, NUMERICAL } = REGEX
     const { TWOINARRAY } = NUMERICAL_ENTITY
@@ -265,9 +265,8 @@ export default function StudentController() {
         if (!home_address.match(CSVDOT_HYPHEN) || !postal_address.match(CSVDOT_HYPHEN) || !work_address.match(CSVDOT_HYPHEN)) return { status: false, error: IDR }
         return { status: true }
     }
-    const saveEmergencyContact = (req, res) => {
-        let { student_id, parent_is_contact, contacts } = req.body
-        if (!student_id.match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+    const processContactData = (data, res, query, code, message, type) => {
+        let { student_id, parent_is_contact, contacts } = data
         if (!TWOINARRAY.includes(Number(parent_is_contact))) return res.status(400).json({ error: BRS })
         if (!Array.isArray(contacts)) return res.status(400).json({ error: BRS })
         if (contacts.length > 5) return res.status(412).json({ error: TMCR })
@@ -279,8 +278,8 @@ export default function StudentController() {
         })
         if (!isIncluded) return res.status(400).json({ error: BRS })
         pool.query(GETCONTACTBYSID, [student_id]).then(result => {
-            if (result.rowCount > 0) return res.status(412).json({ error: SAHC })
-            let errorBag = {}
+            if (type && result.rowCount > 0) return res.status(412).json({ error: SAHC })
+            let errorBag = {}, oldData = (!type && result.rowCount === 1) ? result.rows[0] : null
             for (let i = 0; i < contacts.length; i++) {
                 const check = validateContacts(contacts[i])
                 if (!check.status) errorBag = { ...errorBag, error: check.error }
@@ -288,21 +287,42 @@ export default function StudentController() {
             }
             if (errorBag.hasOwnProperty('error')) return res.status(412).json({ error: errorBag.error })
             parent_is_contact = Number(parent_is_contact) === 2 ? true : false
-            let dataset = { student_id, parent_is_contact, contacts: [] }, timestamp = (new Date()).toISOString()
+            let dataset = { student_id, parent_is_contact, contacts: [] }, timestamp = (new Date()).toISOString(), cT = !type && oldData.hasOwnProperty('created_at') ? oldData.created_at : type ? timestamp : null
             contacts.map((contact, i) => {
                 const { firstname, lastname, telephone, home_address, postal_address, occupation, employer, work_address, relationship } = contact
                 dataset.contacts = [...dataset.contacts, {
-                    ...contact, contact_id: `${i + 1}`, firstname: capitalize(firstname), lastname: capitalize(lastname), telephone,
+                    ...contact, contact_id: `${(new ObjectId()).toString()}-${i + 1}`, firstname: capitalize(firstname), lastname: capitalize(lastname), telephone,
                     home_address: capitalize(home_address), postal_address: capitalize(postal_address),
                     occupation: capitalize(occupation), employer: capitalize(employer), work_address: capitalize(work_address), relationship: capitalize(relationship)
                 }]
             })
-            return pool.query(SAVECONTACT, [student_id, parent_is_contact, timestamp, JSON.stringify(dataset.contacts)]).then(response => {
-                if (response.rowCount > 0) return res.status(201).json({ error: CDSS })
+            if (!type) pool.query(DELETECONTACTBYSID, [student_id]).catch(err => console.warn(err))
+            return pool.query(query, [student_id, parent_is_contact, cT, timestamp, JSON.stringify(dataset.contacts)]).then(response => {
+                if (response.rowCount > 0) return res.status(code).json({ error: message })
                 return res.status(500).json({ error: ACNBE })
             }).catch(err => {
                 return res.status(500).json({ error: WSWW })
             })
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const saveEmergencyContact = (req, res) => {
+        const code = 201, message = CDSS, type = true, { student_id } = req.body
+        if (!student_id.match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        pool.query(SELECTSTUDENTBYID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNRF })
+            return processContactData(req.body, res, SAVECONTACT, code, message, type)
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const recreateContactInfo = (req, res) => {
+        const code = 200, message = CDRS, type = false, { student_id } = req.body
+        if (!student_id.match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        pool.query(SELECTSTUDENTBYID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNRF })
+            return processContactData(req.body, res, RESAVECONTACT, code, message, type)
         }).catch(err => {
             return res.status(500).json({ error: WSWW })
         })
@@ -322,7 +342,7 @@ export default function StudentController() {
                 pool.query(GETUSERBYSLUG, [response.rows[0].parent_id]).then(parentData => {
                     if (parentData.rowCount === 0) return res.status(200).json(contact)
                     const { firstname, lastname, othername, email, phone } = parentData.rows[0]
-                    return res.status(200).json({ parent_contact_information: { firstname, lastname, othername, email, phone }, contact })
+                    return res.status(200).json({ ...contact, parent_contact_information: { firstname, lastname, othername, email, phone } })
                 }).catch(err => {
                     return res.status(500).json({ error: WSWW })
                 })
@@ -346,12 +366,13 @@ export default function StudentController() {
     }
     const removeContactByContactId = (req, res) => {
         const { contact_id, student_id } = req.body
-        if (!student_id.match(MONGOOBJECT) || isNaN(Number(contact_id))) return res.status(400).json({ error: BRS })
+        const cids = contact_id.toString().split('-', 2)
+        if (!student_id.match(MONGOOBJECT) || isNaN(Number(cids[1])) || !cids[0].match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
         pool.query(GETCONTACTBYSID, [student_id]).then(result => {
             if (result.rowCount === 0) return res.status(404).json({ error: SNCIF })
             const contacts = result.rows[0].contacts, row = result.rows[0], timestamp = (new Date()).toISOString()
             if (!Array.isArray(contacts)) return res.status(500).json({ error: WSWW })
-            const contactInList = contacts.filter(contact => Number(contact.contact_id) === Number(contact_id)), list = contacts.filter(contact => Number(contact.contact_id) !== Number(contact_id))
+            const contactInList = contacts.filter(contact => contact.contact_id === contact_id), list = contacts.filter(contact => contact.contact_id !== contact_id)
             if (contactInList.length === 0) return res.status(404).json({ error: SNCIF })
             pool.query(DELETECONTACTBYSID, [student_id]).then(response => {
                 if (list.length === 0) return res.status(200).json({ error: CIRS })
@@ -368,10 +389,134 @@ export default function StudentController() {
             return res.status(500).json({ error: WSWW })
         })
     }
-
+    const validateDelegates = (data) => {
+        const { firstname, lastname, telephone, home_address, postal_address, occupation, employer, work_address } = data
+        if (!firstname || !lastname || !telephone || !home_address || !postal_address || !occupation || !employer.length || !work_address) return { status: false, error: AFAR }
+        if (!home_address.length || !postal_address.length) return { status: false, error: AFAR }
+        if (!telephone.match(NUMERICAL) || telephone.length !== 10) return { status: false, error: PNINS }
+        if (!firstname.match(ALPHA) || !lastname.match(ALPHA) || !occupation.match(ALPHA) || !employer.match(ALPHA)) return { status: false, error: IDR }
+        if (firstname.length < 3 || firstname.length > 30 || lastname.length < 3 || lastname.length > 30) return { status: false, error: NATL }
+        if (!home_address.match(CSVDOT_HYPHEN) || !postal_address.match(CSVDOT_HYPHEN) || !work_address.match(CSVDOT_HYPHEN)) return { status: false, error: IDR }
+        return { status: true }
+    }
+    const processAndQueryDelegates = (data, res, query, code, message, type) => {
+        let { student_id, parent_is_delegate, delegates } = data
+        if (!TWOINARRAY.includes(Number(parent_is_delegate))) return res.status(400).json({ error: BRS })
+        if (!Array.isArray(delegates)) return res.status(400).json({ error: BRS })
+        if (delegates.length > 5) return res.status(412).json({ error: TMDR })
+        let isIncluded = true
+        delegates.map(delegate => {
+            Object.keys(delegate).map(key => {
+                if (!DELEGATES_DATAKEYS.includes(key)) isIncluded = false
+            })
+        })
+        if (!isIncluded) return res.status(400).json({ error: BRS })
+        pool.query(GETDELEGATEBYSID, [student_id]).then(result => {
+            if (type && result.rowCount > 0) return res.status(412).json({ error: SAHD })
+            let errorBag = {}, oldData = (!type && result.rowCount === 1) ? result.rows[0] : null
+            for (let i = 0; i < delegates.length; i++) {
+                const check = validateDelegates({ ...delegates[i] })
+                if (!check.status) errorBag = { ...errorBag, error: check.error }
+                break
+            }
+            if (errorBag.hasOwnProperty('error')) return res.status(412).json({ error: errorBag.error })
+            parent_is_delegate = Number(parent_is_delegate) === 2 ? true : false
+            let dataset = { student_id, parent_is_delegate, delegates: [] }, timestamp = (new Date()).toISOString(), cT = !type && oldData.hasOwnProperty('created_at') ? oldData.created_at : type ? timestamp : null
+            delegates.map((delegate, i) => {
+                const { firstname, lastname, telephone, home_address, postal_address, occupation, employer, work_address } = delegate
+                dataset.delegates = [...dataset.delegates, {
+                    ...delegate, delegate_id: `${(new ObjectId()).toString()}-${i + 1}`, firstname: capitalize(firstname), lastname: capitalize(lastname), telephone,
+                    home_address: capitalize(home_address), postal_address: capitalize(postal_address),
+                    occupation: capitalize(occupation), employer: capitalize(employer), work_address: capitalize(work_address)
+                }]
+            })
+            if (!type) pool.query(DELETEDELEGATEBYSID, [student_id]).catch(err => console.warn(err))
+            return pool.query(query, [student_id, parent_is_delegate, cT, timestamp, JSON.stringify(dataset.delegates)]).then(response => {
+                if (response.rowCount > 0) return res.status(code).json({ error: message })
+                return res.status(500).json({ error: ACNBE })
+            }).catch(err => {
+                return res.status(500).json({ error: WSWW })
+            })
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const saveDelegates = (req, res) => {
+        const code = 201, message = DDSS, type = true, { student_id } = req.body
+        if (!student_id.match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        pool.query(SELECTSTUDENTBYID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNRF })
+            return processAndQueryDelegates(req.body, res, SAVEDELEGATES, code, message, type)
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const fetchDelegates = (req, res) => {
+        const params = new URLSearchParams(url.parse(req.url, true).query)
+        if (!params.get('student_id')) return res.status(400).json({ error: BRS })
+        if (!params.get('student_id').match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        const student_id = params.get('student_id')
+        pool.query(GETDELEGATEBYSID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNDDF })
+            const delegate = result.rows[0]
+            delegate.id = undefined
+            if (!delegate.parent_is_delegate) return res.status(200).json(delegate)
+            const studentData = pool.query(SELECTSTUDENTBYID, [student_id]).then(response => {
+                if (response.rowCount === 0) return res.status(200).json(delegate)
+                pool.query(GETUSERBYSLUG, [response.rows[0].parent_id]).then(parentData => {
+                    if (parentData.rowCount === 0) return res.status(200).json(delegate)
+                    const { firstname, lastname, othername, email, phone } = parentData.rows[0]
+                    return res.status(200).json({ ...delegate, parent_information: { firstname, lastname, othername, email, phone } })
+                }).catch(err => {
+                    return res.status(500).json({ error: WSWW })
+                })
+            }).catch(err => console.warn(err))
+            return studentData
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const removeDelegateByStudentId = (req, res) => {
+        const params = new URLSearchParams(url.parse(req.url, true).query)
+        if (!params.get('student_id')) return res.status(400).json({ error: BRS })
+        if (!params.get('student_id').match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        const student_id = params.get('student_id')
+        pool.query(DELETEDELEGATEBYSID, [student_id]).then(response => {
+            if (response.rowCount > 0) return res.status(200).json({ message: DDRS })
+            return res.status(500).json({ error: ACNBE })
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
+    const removeDelegateByDelegateId = (req, res) => {
+        const { delegate_id, student_id } = req.body
+        const dids = delegate_id.toString().split('-', 2)
+        if (!student_id.match(MONGOOBJECT) || isNaN(Number(dids[1])) || !dids[0].match(MONGOOBJECT)) return res.status(400).json({ error: BRS })
+        pool.query(GETDELEGATEBYSID, [student_id]).then(result => {
+            if (result.rowCount === 0) return res.status(404).json({ error: SNDDF })
+            const delegates = result.rows[0].delegates, row = result.rows[0], timestamp = (new Date()).toISOString()
+            if (!Array.isArray(delegates)) return res.status(500).json({ error: WSWW })
+            const delegateInList = delegates.filter(delegate => delegate.delegate_id === delegate_id), list = delegates.filter(contact => contact.delegate_id !== delegate_id)
+            if (delegateInList.length === 0) return res.status(404).json({ error: SNDDF })
+            pool.query(DELETEDELEGATEBYSID, [student_id]).then(response => {
+                if (list.length === 0) return res.status(200).json({ error: DDRS })
+                // pool.query(RESAVECONTACT, [student_id, row.parent_is_contact, row.created_at, timestamp, JSON.stringify(list)]).then(response => {
+                //     if (response.rowCount > 0) return res.status(200).json({ error: CIRS })
+                //     return res.status(500).json({ error: ACNBE })
+                // }).catch(err => {
+                //     return res.status(500).json({ error: WSWW })
+                // })
+            }).catch(err => {
+                return res.status(500).json({ error: WSWW })
+            })
+        }).catch(err => {
+            return res.status(500).json({ error: WSWW })
+        })
+    }
     return {
         createNewStudent, fetchStudents, fetchStudent, fetchStudentsByParent, updateStudentData,
         createParentData, changeFreshStudentToContinuing, fetchParentInformation, removeParentInformation,
-        saveEmergencyContact, fetchContacts, removeContactByStudentId, removeContactByContactId
+        saveEmergencyContact, fetchContacts, removeContactByStudentId, removeContactByContactId,
+        recreateContactInfo, saveDelegates, fetchDelegates, removeDelegateByStudentId
     }
 }

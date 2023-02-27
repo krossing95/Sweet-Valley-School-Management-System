@@ -1,5 +1,6 @@
 export default function StudentQueries() {
-    const STUDENTS = 'students', PARENTINFO = 'parent_information', EMERGENCYCONTACT = 'emergency_contacts'
+    const STUDENTS = 'students', PARENTINFO = 'parent_information', EMERGENCYCONTACT = 'emergency_contacts',
+        DELEGATES = 'delegates'
 
     // Student's basic info queries
 
@@ -24,15 +25,23 @@ export default function StudentQueries() {
     // Emergency contacts queries
 
     const SAVECONTACT = `INSERT INTO ${EMERGENCYCONTACT} (student_id, parent_is_contact, created_at, updated_at, contacts) 
-    VALUES ($1, $2, $3, $3, $4)`
+    VALUES ($1, $2, $3, $4, $5)`
     const RESAVECONTACT = `INSERT INTO ${EMERGENCYCONTACT} (student_id, parent_is_contact, created_at, updated_at, contacts) 
     VALUES ($1, $2, $3, $4, $5)`
     const GETCONTACTBYSID = `SELECT * FROM ${EMERGENCYCONTACT} WHERE student_id = $1`
     const DELETECONTACTBYSID = `DELETE FROM ${EMERGENCYCONTACT} WHERE student_id = $1`
 
+    // Delegates queries
+
+    const SAVEDELEGATES = `INSERT INTO ${DELEGATES} (student_id, parent_is_delegate, created_at, updated_at, delegates)
+    VALUES ($1, $2, $3, $4, $5)`
+    const GETDELEGATEBYSID = `SELECT * FROM ${DELEGATES} WHERE student_id = $1`
+    const DELETEDELEGATEBYSID = `DELETE FROM ${DELEGATES} WHERE student_id = $1`
+    const RESAVEDELEGATE = ``
+
     return {
         REGISTERSTUDENT, GETSTUDENTS, SELECTSTUDENTBYID, SELECTSTUDENTSBYPARENT, UPDATESTUDENTDATA,
         SAVEPARENTDATA, DELETEPARENTDATA, GETPARENTINFOBYSID, SELECTALLINFO, SAVECONTACT, GETCONTACTBYSID,
-        DELETECONTACTBYSID, RESAVECONTACT
+        DELETECONTACTBYSID, RESAVECONTACT, SAVEDELEGATES, GETDELEGATEBYSID, DELETEDELEGATEBYSID
     }
 }

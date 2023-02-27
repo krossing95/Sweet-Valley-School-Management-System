@@ -6,7 +6,8 @@ const studentRoute = express.Router()
 const {
     createNewStudent, fetchStudents, fetchStudent, fetchStudentsByParent, updateStudentData,
     createParentData, fetchParentInformation, removeParentInformation, saveEmergencyContact,
-    fetchContacts, removeContactByStudentId, removeContactByContactId
+    fetchContacts, removeContactByStudentId, removeContactByContactId, recreateContactInfo,
+    saveDelegates, fetchDelegates, removeDelegateByStudentId
 } = StudentController()
 
 studentRoute.post('/', createNewStudent) // add middleware.admin
@@ -25,4 +26,10 @@ studentRoute.post('/emergency-contacts', saveEmergencyContact) //add middleware.
 studentRoute.get('/emergency-contacts', fetchContacts)
 studentRoute.delete('/emergency-contacts', removeContactByStudentId) //add middleware.admin
 studentRoute.patch('/emergency-contacts', removeContactByContactId) //add middleware.admin
+studentRoute.patch('/emergency-contacts/recreate', recreateContactInfo) //add middleware.admin
+
+// delegates
+studentRoute.post('/delegates', saveDelegates) //add middleware.admin
+studentRoute.get('/delegates', fetchDelegates)
+studentRoute.delete('/delegates', removeDelegateByStudentId) //add middleware.admin
 export default studentRoute
